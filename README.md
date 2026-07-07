@@ -12,7 +12,7 @@ New Disbursement Allocation added: $[amount] - [Disbursement Description for Pay
 
 This repo includes a scheduled GitHub Actions workflow at `.github/workflows/monitor-disbursements.yml`.
 
-The workflow runs every 10 minutes Monday-Friday from 8:00 AM through 6:00 PM Eastern. This is cheaper than keeping a Render web service and database online, and it stays within GitHub's free Actions allowance more comfortably than an all-day schedule.
+The workflow is scheduled every 10 minutes on weekdays and skips itself outside 8:00 AM through 6:00 PM Eastern. This avoids relying on GitHub's timezone scheduler registration while keeping the monitor active during business hours.
 
 Add these repository secrets in GitHub:
 
