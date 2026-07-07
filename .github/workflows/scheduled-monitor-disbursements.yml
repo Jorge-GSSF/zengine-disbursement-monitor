@@ -1,7 +1,13 @@
-name: Monitor approved disbursements
+name: Scheduled approved disbursement monitor
 
 on:
-  workflow_dispatch:
+  schedule:
+    - cron: "3 * * * 1-5"
+    - cron: "13 * * * 1-5"
+    - cron: "23 * * * 1-5"
+    - cron: "33 * * * 1-5"
+    - cron: "43 * * * 1-5"
+    - cron: "53 * * * 1-5"
 
 permissions:
   contents: write
@@ -15,22 +21,43 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Check scheduled business hours
+        id: business_hours
+        env:
+          TZ: America/New_York
+        run: |
+          hour="$(date +%H)"
+          minute="$(date +%M)"
+          hour_num=$((10#$hour))
+          minute_num=$((10#$minute))
+          if (( hour_num < 8 || hour_num > 18 || (hour_num == 18 && minute_num > 9) )); then
+            echo "run_monitor=false" >> "$GITHUB_OUTPUT"
+            echo "Outside Eastern business hours ($hour:$minute). Skipping monitor."
+          else
+            echo "run_monitor=true" >> "$GITHUB_OUTPUT"
+            echo "Inside Eastern business hours ($hour:$minute). Running monitor."
+          fi
+
       - name: Checkout repository
+        if: ${{ steps.business_hours.outputs.run_monitor == 'true' }}
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Set up Python
+        if: ${{ steps.business_hours.outputs.run_monitor == 'true' }}
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Install dependencies
+        if: ${{ steps.business_hours.outputs.run_monitor == 'true' }}
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
 
       - name: Check required secrets
+        if: ${{ steps.business_hours.outputs.run_monitor == 'true' }}
         env:
           ZENGINE_LOGIN_EMAIL: ${{ secrets.ZENGINE_LOGIN_EMAIL }}
           ZENGINE_LOGIN_PASSWORD: ${{ secrets.ZENGINE_LOGIN_PASSWORD }}
@@ -49,17 +76,19 @@ jobs:
           fi
 
       - name: Run monitor
+        if: ${{ steps.business_hours.outputs.run_monitor == 'true' }}
         env:
           ZENGINE_LOGIN_EMAIL: ${{ secrets.ZENGINE_LOGIN_EMAIL }}
           ZENGINE_LOGIN_PASSWORD: ${{ secrets.ZENGINE_LOGIN_PASSWORD }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          SEND_NO_CHANGES_MESSAGE: ${{ github.event_name == 'workflow_dispatch' }}
+          SEND_NO_CHANGES_MESSAGE: "false"
         run: |
-          echo "Running Zengine approved-disbursement monitor..."
+          echo "Running scheduled Zengine approved-disbursement monitor..."
           python github_actions_monitor.py
 
       - name: Commit monitor state
+        if: ${{ steps.business_hours.outputs.run_monitor == 'true' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
