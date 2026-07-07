@@ -22,6 +22,12 @@ LINKED_PAYEE_FIELD_ID = os.getenv("ZENGINE_LINKED_PAYEE_FIELD_ID", "field3588097
 SORT_FIELD = os.getenv("ZENGINE_SORT_FIELD", "modified")
 MAX_PAGES = int(os.getenv("ZENGINE_MAX_PAGES", "20"))
 STATE_PATH = Path(os.getenv("MONITOR_STATE_PATH", "state/notified_records.json"))
+SEND_NO_CHANGES_MESSAGE = os.getenv("SEND_NO_CHANGES_MESSAGE", "").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
 
 
 def main() -> int:
@@ -72,6 +78,17 @@ def main() -> int:
             f"Scanned {len(records)} records; approved={len(approved_records)}; "
             f"new_notifications={sent}; newly_marked={len(added_ids)}."
         )
+        if sent == 0 and SEND_NO_CHANGES_MESSAGE:
+            print("Sending Telegram status message because this was a manual no-change run...")
+            send_telegram_message(
+                telegram_token,
+                telegram_chat_id,
+                (
+                    "Zengine disbursement monitor checked successfully. "
+                    f"No new approved disbursements found. Approved records currently tracked: "
+                    f"{len(approved_records)}."
+                ),
+            )
 
     return 0
 

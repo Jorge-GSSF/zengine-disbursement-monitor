@@ -59,6 +59,7 @@ jobs:
           ZENGINE_LOGIN_PASSWORD: ${{ secrets.ZENGINE_LOGIN_PASSWORD }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SEND_NO_CHANGES_MESSAGE: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           echo "Running Zengine approved-disbursement monitor..."
           python github_actions_monitor.py

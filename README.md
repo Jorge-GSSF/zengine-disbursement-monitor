@@ -70,3 +70,5 @@ state/notified_records.json
 On the first successful run, existing approved records are marked as already seen and no backlog Telegram messages are sent.
 
 Use GitHub's **Actions > Monitor approved disbursements > Run workflow** button to trigger a manual check.
+
+Manual workflow runs send a Telegram status message when no new approved disbursements are found. Scheduled runs stay quiet unless a new approved record appears.
