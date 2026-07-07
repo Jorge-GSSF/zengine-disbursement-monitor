@@ -33,6 +33,8 @@ def _int_env(name: str, default: int) -> int:
 @dataclass(frozen=True)
 class Settings:
     zengine_api_token: str
+    zengine_login_email: str = ""
+    zengine_login_password: str = ""
     zengine_form_id: int = 185672
     zengine_status_field_id: str = "field3589680"
     zengine_approved_value: str = "Approved"
@@ -54,6 +56,8 @@ class Settings:
     def from_env(cls) -> "Settings":
         return cls(
             zengine_api_token=os.getenv("ZENGINE_API_TOKEN", "").strip(),
+            zengine_login_email=os.getenv("ZENGINE_LOGIN_EMAIL", "").strip(),
+            zengine_login_password=os.getenv("ZENGINE_LOGIN_PASSWORD", "").strip(),
             zengine_form_id=_int_env("ZENGINE_FORM_ID", 185672),
             zengine_status_field_id=os.getenv("ZENGINE_STATUS_FIELD_ID", "field3589680").strip(),
             zengine_approved_value=os.getenv("ZENGINE_APPROVED_VALUE", "Approved").strip(),
@@ -74,8 +78,12 @@ class Settings:
 
     def missing_required_values(self) -> list[str]:
         missing = []
+        if not self.zengine_api_token and not (
+            self.zengine_login_email and self.zengine_login_password
+        ):
+            missing.extend(["ZENGINE_LOGIN_EMAIL", "ZENGINE_LOGIN_PASSWORD"])
+
         for env_name, value in {
-            "ZENGINE_API_TOKEN": self.zengine_api_token,
             "ZENGINE_STATUS_FIELD_ID": self.zengine_status_field_id,
             "ZENGINE_PAYMENT_MEMO_FIELD_ID": self.zengine_payment_memo_field_id,
             "TELEGRAM_BOT_TOKEN": self.telegram_bot_token,

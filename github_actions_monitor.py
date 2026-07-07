@@ -9,6 +9,8 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
+from zengine_auth import get_zengine_api_token
+
 
 ZENGINE_API_BASE_URL = "https://api.zenginehq.com/v1"
 ZENGINE_FORM_ID = int(os.getenv("ZENGINE_FORM_ID", "185672"))
@@ -23,7 +25,7 @@ STATE_PATH = Path(os.getenv("MONITOR_STATE_PATH", "state/notified_records.json")
 
 
 def main() -> int:
-    zengine_token = required_env("ZENGINE_API_TOKEN")
+    zengine_token = resolve_zengine_token()
     telegram_token = required_env("TELEGRAM_BOT_TOKEN")
     telegram_chat_id = required_env("TELEGRAM_CHAT_ID")
 
@@ -79,6 +81,22 @@ def required_env(name: str) -> str:
     if not value:
         raise RuntimeError(f"Missing required environment variable: {name}")
     return value
+
+
+def resolve_zengine_token() -> str:
+    token = os.getenv("ZENGINE_API_TOKEN", "").strip()
+    if token:
+        print("Using Zengine API token from environment.")
+        print(f"::add-mask::{token}")
+        return token
+
+    email = required_env("ZENGINE_LOGIN_EMAIL")
+    password = required_env("ZENGINE_LOGIN_PASSWORD")
+    print("No Zengine API token configured; logging into Zengine to retrieve one...")
+    token = get_zengine_api_token(email, password)
+    print(f"::add-mask::{token}")
+    print("Retrieved Zengine API token for this workflow run.")
+    return token
 
 
 def load_state() -> dict[str, Any]:

@@ -16,9 +16,12 @@ The workflow runs every 10 minutes Monday-Friday from 8:00 AM through 6:00 PM Ea
 
 Add these repository secrets in GitHub:
 
-- `ZENGINE_API_TOKEN`
+- `ZENGINE_LOGIN_EMAIL`
+- `ZENGINE_LOGIN_PASSWORD`
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_CHAT_ID`
+
+Do not add `ZENGINE_API_TOKEN` for the normal GitHub Actions setup. Each scheduled run logs into the Zengine developer page, retrieves the current API token, masks it in the Actions log, uses it for that run, and discards it. `ZENGINE_API_TOKEN` is still supported only as an optional local/debug fallback.
 
 Known field IDs from the existing automation:
 
@@ -36,7 +39,7 @@ Run:
 python tools/inspect_zengine_fields.py
 ```
 
-Paste the Zengine token when prompted. The script prints likely Status, Memo/Description, Amount, and Payee fields.
+Paste a Zengine token when prompted. The script prints likely Status, Memo/Description, Amount, and Payee fields.
 
 ## Find The Telegram Chat ID
 

@@ -8,6 +8,7 @@ from settings import Settings
 from storage import Storage
 from telegram_client import TelegramClient
 from zengine import ZengineClient
+from zengine_auth import get_zengine_api_token
 
 
 LOGGER = logging.getLogger(__name__)
@@ -27,13 +28,24 @@ class DisbursementMonitor:
         self.settings = settings
         self.storage = Storage(settings.database_url)
         self.zengine = ZengineClient(
-            settings.zengine_api_token,
+            self._resolve_zengine_api_token(),
             base_url=settings.zengine_api_base_url,
         )
         self.telegram = TelegramClient(
             settings.telegram_bot_token,
             settings.telegram_chat_id,
         )
+
+    def _resolve_zengine_api_token(self) -> str:
+        if self.settings.zengine_api_token:
+            return self.settings.zengine_api_token
+        if self.settings.zengine_login_email and self.settings.zengine_login_password:
+            LOGGER.info("Retrieving Zengine API token from developer page login.")
+            return get_zengine_api_token(
+                self.settings.zengine_login_email,
+                self.settings.zengine_login_password,
+            )
+        return ""
 
     def run_once(self) -> MonitorResult:
         missing = self.settings.missing_required_values()
