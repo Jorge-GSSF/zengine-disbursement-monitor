@@ -2,7 +2,7 @@ name: Monitor approved disbursements
 
 on:
   schedule:
-    - cron: "3-59/10 * * * 1-5"
+    - cron: "3,13,23,33,43,53 * * * 1-5"
   workflow_dispatch:
 
 permissions:
