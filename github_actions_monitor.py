@@ -27,12 +27,15 @@ def main() -> int:
     telegram_token = required_env("TELEGRAM_BOT_TOKEN")
     telegram_chat_id = required_env("TELEGRAM_CHAT_ID")
 
+    print("Loading monitor state...")
     state = load_state()
     already_notified = set(str(value) for value in state.get("notified_record_ids", []))
     initialized = bool(state.get("initialized", False))
 
+    print("Fetching Zengine records...")
     records = fetch_records(zengine_token)
     approved_records = [record for record in records if is_approved(record)]
+    print(f"Fetched {len(records)} records; found {len(approved_records)} approved records.")
 
     sent = 0
     added_ids: set[str] = set()
@@ -42,11 +45,13 @@ def main() -> int:
             continue
 
         if initialized:
+            print(f"Sending Telegram notification for Zengine record {record_id}...")
             send_telegram_message(telegram_token, telegram_chat_id, build_message(record))
             sent += 1
 
         added_ids.add(record_id)
 
+    print("Saving monitor state...")
     next_ids = sorted(already_notified | added_ids)
     save_state(
         {
@@ -125,6 +130,8 @@ def get_json(url: str, params: dict[str, str]) -> dict[str, Any]:
     except urllib.error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")[:500]
         raise RuntimeError(f"HTTP {exc.code} from {url}: {body}") from exc
+    except urllib.error.URLError as exc:
+        raise RuntimeError(f"Could not reach {url}: {exc.reason}") from exc
     if not isinstance(payload, dict):
         raise RuntimeError(f"Unexpected JSON response from {url}")
     return payload
@@ -145,9 +152,15 @@ def send_telegram_message(token: str, chat_id: str, text: str) -> None:
         headers={"Content-Type": "application/json"},
         method="POST",
     )
-    with urllib.request.urlopen(request, timeout=30) as response:
-        if response.status >= 400:
-            raise RuntimeError(f"Telegram API returned HTTP {response.status}")
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            if response.status >= 400:
+                raise RuntimeError(f"Telegram API returned HTTP {response.status}")
+    except urllib.error.HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace")[:500]
+        raise RuntimeError(f"Telegram API returned HTTP {exc.code}: {body}") from exc
+    except urllib.error.URLError as exc:
+        raise RuntimeError(f"Could not reach Telegram API: {exc.reason}") from exc
 
 
 def is_approved(record: dict[str, Any]) -> bool:
@@ -191,5 +204,5 @@ if __name__ == "__main__":
     try:
         raise SystemExit(main())
     except Exception as exc:
-        print(str(exc), file=sys.stderr)
-        raise
+        print(f"::error::{exc}", file=sys.stderr)
+        raise SystemExit(1)

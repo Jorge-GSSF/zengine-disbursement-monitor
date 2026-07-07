@@ -47,7 +47,9 @@ jobs:
           ZENGINE_API_TOKEN: ${{ secrets.ZENGINE_API_TOKEN }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python github_actions_monitor.py
+        run: |
+          echo "Running Zengine approved-disbursement monitor..."
+          python github_actions_monitor.py
 
       - name: Commit monitor state
         run: |
