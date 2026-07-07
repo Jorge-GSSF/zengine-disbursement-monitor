@@ -1,6 +1,6 @@
 # Zengine Disbursement Monitor
 
-Monitors Zengine form `185672` every 10 minutes and sends a Telegram message for each approved disbursement allocation that has not been notified before.
+Monitors Zengine form `185672` and sends a Telegram message for each approved disbursement allocation that has not been notified before.
 
 Message format:
 
@@ -8,12 +8,17 @@ Message format:
 New Disbursement Allocation added: $[amount] - [Disbursement Description for Payment Memo] - [Linked Payee]
 ```
 
-## Required Environment Variables
+## GitHub Actions Setup
+
+This repo includes a scheduled GitHub Actions workflow at `.github/workflows/monitor-disbursements.yml`.
+
+The workflow runs every 15 minutes by default. This is cheaper than keeping a Render web service and database online, and it stays within GitHub's free Actions allowance more comfortably than a 10-minute schedule.
+
+Add these repository secrets in GitHub:
 
 - `ZENGINE_API_TOKEN`
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_CHAT_ID`
-- `DATABASE_URL`
 
 Known field IDs from the existing automation:
 
@@ -51,14 +56,14 @@ Paste the Telegram bot token when prompted. Use the printed numeric `chat_id` as
 
 Set `NOTIFY_EXISTING_ON_FIRST_RUN=true` only if you want the initial run to text every current approved record.
 
-## Render
+## State
 
-The included `render.yaml` provisions:
+The workflow stores already-notified Zengine record IDs in:
 
-- one Python web service
-- one Render Postgres database
-- environment variable placeholders for secrets
+```text
+state/notified_records.json
+```
 
-Deploy from GitHub as a Render Blueprint, then fill the secret env vars in Render.
+On the first successful run, existing approved records are marked as already seen and no backlog Telegram messages are sent.
 
-The manual `POST /run-once?secret=...` endpoint is protected by `RUN_ONCE_SECRET`; Render can generate this value automatically.
+Use GitHub's **Actions > Monitor approved disbursements > Run workflow** button to trigger a manual check.
