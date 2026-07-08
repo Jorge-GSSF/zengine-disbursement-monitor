@@ -15,7 +15,7 @@ This repo includes two GitHub Actions workflows:
 - `.github/workflows/monitor-disbursements.yml` for manual test runs.
 - `.github/workflows/scheduled-monitor-disbursements.yml` for automatic scheduled runs.
 
-The scheduled workflow runs during Eastern business hours on weekdays. Because GitHub cron uses UTC, the workflow is scheduled for the UTC hours that map to 8:00 AM through 6:00 PM Eastern during daylight time, with an in-workflow Eastern-time guard as a backup.
+The scheduled workflow runs during Eastern business hours on weekdays. Because GitHub cron uses UTC, the workflow uses separate UTC cron entries that map to 8:00 AM through 6:00 PM Eastern during daylight time, with an in-workflow Eastern-time guard as a backup.
 
 Add these repository secrets in GitHub:
 

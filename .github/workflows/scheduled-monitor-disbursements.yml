@@ -2,7 +2,12 @@ name: Scheduled approved disbursement monitor
 
 on:
   schedule:
-    - cron: "3,13,23,33,43,53 12-21 * * 1-5"
+    - cron: "3 12-21 * * 1-5"
+    - cron: "13 12-21 * * 1-5"
+    - cron: "23 12-21 * * 1-5"
+    - cron: "33 12-21 * * 1-5"
+    - cron: "43 12-21 * * 1-5"
+    - cron: "53 12-21 * * 1-5"
     - cron: "3 22 * * 1-5"
 
 permissions:
