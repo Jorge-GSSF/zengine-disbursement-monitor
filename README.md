@@ -5,7 +5,7 @@ Monitors Zengine form `185672` and sends a Telegram message for each approved di
 Message format:
 
 ```text
-New Disbursement Allocation added: $[amount] - [Disbursement Description for Payment Memo] - [Linked Payee]
+New Disbursement Allocation added: $[amount] - [Payment Type] - [Disbursement Description for Payment Memo] - [Linked Payee]
 ```
 
 ## GitHub Actions Setup
@@ -30,6 +30,7 @@ Known field IDs from the existing automation:
 
 - `ZENGINE_FORM_ID=185672`
 - `ZENGINE_AMOUNT_FIELD_ID=field3583325`
+- `ZENGINE_PAYMENT_TYPE_FIELD_ID=field3609440`
 - `ZENGINE_LINKED_PAYEE_FIELD_ID=field3588097`
 - `ZENGINE_STATUS_FIELD_ID=field3589680`
 - `ZENGINE_PAYMENT_MEMO_FIELD_ID=field6995603`

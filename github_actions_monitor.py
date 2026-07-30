@@ -17,6 +17,7 @@ ZENGINE_FORM_ID = int(os.getenv("ZENGINE_FORM_ID", "185672"))
 STATUS_FIELD_ID = os.getenv("ZENGINE_STATUS_FIELD_ID", "field3589680")
 APPROVED_VALUE = os.getenv("ZENGINE_APPROVED_VALUE", "Approved")
 AMOUNT_FIELD_ID = os.getenv("ZENGINE_AMOUNT_FIELD_ID", "field3583325")
+PAYMENT_TYPE_FIELD_ID = os.getenv("ZENGINE_PAYMENT_TYPE_FIELD_ID", "field3609440")
 PAYMENT_MEMO_FIELD_ID = os.getenv("ZENGINE_PAYMENT_MEMO_FIELD_ID", "field6995603")
 LINKED_PAYEE_FIELD_ID = os.getenv("ZENGINE_LINKED_PAYEE_FIELD_ID", "field3588097")
 SORT_FIELD = os.getenv("ZENGINE_SORT_FIELD", "modified")
@@ -204,9 +205,10 @@ def is_approved(record: dict[str, Any]) -> bool:
 
 def build_message(record: dict[str, Any]) -> str:
     amount = format_amount(record.get(AMOUNT_FIELD_ID))
+    payment_type = clean_text(record.get(PAYMENT_TYPE_FIELD_ID)) or "Unknown payment type"
     memo = clean_text(record.get(PAYMENT_MEMO_FIELD_ID)) or "No memo"
     payee = display_value(record.get(LINKED_PAYEE_FIELD_ID)) or "Unknown payee"
-    return f"New Disbursement Allocation added: {amount} - {memo} - {payee}"
+    return f"New Disbursement Allocation added: {amount} - {payment_type} - {memo} - {payee}"
 
 
 def display_value(value: Any) -> str:

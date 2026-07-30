@@ -101,9 +101,10 @@ class DisbursementMonitor:
 
     def _build_message(self, record: dict[str, Any]) -> str:
         amount = _format_amount(record.get(self.settings.zengine_amount_field_id))
+        payment_type = _clean_text(record.get(self.settings.zengine_payment_type_field_id)) or "Unknown payment type"
         memo = _clean_text(record.get(self.settings.zengine_payment_memo_field_id)) or "No memo"
         payee = _display_value(record.get(self.settings.zengine_linked_payee_field_id)) or "Unknown payee"
-        return f"New Disbursement Allocation added: {amount} - {memo} - {payee}"
+        return f"New Disbursement Allocation added: {amount} - {payment_type} - {memo} - {payee}"
 
 
 def _display_value(value: Any) -> str:

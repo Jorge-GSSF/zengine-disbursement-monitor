@@ -39,6 +39,7 @@ class Settings:
     zengine_status_field_id: str = "field3589680"
     zengine_approved_value: str = "Approved"
     zengine_amount_field_id: str = "field3583325"
+    zengine_payment_type_field_id: str = "field3609440"
     zengine_payment_memo_field_id: str = "field6995603"
     zengine_linked_payee_field_id: str = "field3588097"
     zengine_sort_field: str = "modified"
@@ -62,6 +63,7 @@ class Settings:
             zengine_status_field_id=os.getenv("ZENGINE_STATUS_FIELD_ID", "field3589680").strip(),
             zengine_approved_value=os.getenv("ZENGINE_APPROVED_VALUE", "Approved").strip(),
             zengine_amount_field_id=os.getenv("ZENGINE_AMOUNT_FIELD_ID", "field3583325").strip(),
+            zengine_payment_type_field_id=os.getenv("ZENGINE_PAYMENT_TYPE_FIELD_ID", "field3609440").strip(),
             zengine_payment_memo_field_id=os.getenv("ZENGINE_PAYMENT_MEMO_FIELD_ID", "field6995603").strip(),
             zengine_linked_payee_field_id=os.getenv("ZENGINE_LINKED_PAYEE_FIELD_ID", "field3588097").strip(),
             zengine_sort_field=os.getenv("ZENGINE_SORT_FIELD", "modified").strip(),
